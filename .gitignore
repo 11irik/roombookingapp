@@ -1,3 +1,5 @@
 node_modules
 build
 /.idea/
+/backend/credentials.json
+/backend/token.json
