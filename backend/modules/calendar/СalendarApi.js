@@ -8,27 +8,22 @@ class CalendarApi {
         this.calendar = google.calendar({version: 'v3', auth});
     }
 
-    listEvents() {
-        this.calendar.events.list({
+    //todo
+    async listEvents() {
+        let events;
+
+        await this.calendar.events.list({
             calendarId: CALENDAR_ID,
             timeMin: (new Date()).toISOString(),
             maxResults: 10,
             singleEvents: true,
             orderBy: 'startTime',
-        }, (err, res) => {
-            if (err) return console.log('The API returned an error: ' + err);
-            const events = res.data.items;
-            if (events.length) {
-                console.log('Upcoming 10 events:');
-                console.log(events);
-                events.map((event, i) => {
-                    const start = event.start.dateTime || event.start.date;
-                    console.log(`${start} - ${event.summary}`);
-                });
-            } else {
-                console.log('No upcoming events found.');
-            }
-        });
+        }).then(
+            res => events = res.data.items,
+            err => console.log(err),
+        );
+
+        return events;
     }
 }
 

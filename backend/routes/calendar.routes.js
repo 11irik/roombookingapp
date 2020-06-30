@@ -11,12 +11,11 @@ getAuthenticatedClient().then(auth => {
 
 router.get('/', async (req, res) => {
     try {
-        calendarApi.listEvents();
-        res.send('ok');
+        calendarApi.listEvents().then(events => res.send(events));
     } catch (e) {
-        res.status(500).json({ message: 'Server error' });
+        console.log(e);
+        res.status(500).json({ message: 'Server error'});
     }
 });
-
 
 module.exports = router;
