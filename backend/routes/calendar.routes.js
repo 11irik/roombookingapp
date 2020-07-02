@@ -9,7 +9,7 @@ getAuthenticatedClient().then(auth => {
     calendarApi = new CalendarApi(auth = {auth});
 });
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         calendarApi.listEvents(req.body.start, req.body.end, req.body.count).then(events => res.send(JSON.stringify(events)));
     } catch (e) {
