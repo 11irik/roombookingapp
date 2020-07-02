@@ -11,7 +11,8 @@ getAuthenticatedClient().then(auth => {
 
 router.post('/', async (req, res) => {
     try {
-        calendarApi.listEvents(req.body.start, req.body.end, req.body.count).then(events => res.send(JSON.stringify(events)));
+        calendarApi.listEvents(req.body.start, req.body.end, req.body.count).then((events) => {res.send(JSON.stringify(events))
+        })
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Server error'});
