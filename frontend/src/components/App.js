@@ -2,9 +2,10 @@ import React from 'react';
 import EventList from "./EventList";
 import './App.css';
 import Grid from "@material-ui/core/Grid";
-
-import Paper from "@material-ui/core/Paper";
 import DatePicker from "./DatePicker";
+import CalendarLink from "./CalendarLink";
+
+const CALENDAR_LINK = 'https://calendar.google.com/calendar?cid=MXQ0NDRob24wdTE1cGkxOWlyYzUxaTgxb3NAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ';//todo
 
 class App extends React.Component {
     constructor(props) {
@@ -40,8 +41,7 @@ class App extends React.Component {
             })
                 .then(res => res.json())
                 .then(json => {
-                    this.setState({events: json})
-                    console.log(json);
+                    this.setState({events: json});
                 });
         }
     }
@@ -58,6 +58,7 @@ class App extends React.Component {
                 }}>
                     <Grid container spacing={1}>
                         <Grid item xs>
+                            <CalendarLink link={CALENDAR_LINK}/>
                         </Grid>
                         <Grid item xs>
                             <p>Events</p>
