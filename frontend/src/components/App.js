@@ -5,10 +5,13 @@ import Grid from "@material-ui/core/Grid";
 import DatePicker from "./DatePicker";
 import CalendarLink from "./CalendarLink";
 
-const CALENDAR_LINK = 'https://calendar.google.com/calendar?cid=MXQ0NDRob24wdTE1cGkxOWlyYzUxaTgxb3NAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ';//todo
-const ADDRESS = 'http://192.168.88.254:5000'; //todo move to prop file
-const API = '/api/calendar';
+//todo get from API
+const CALENDAR_LINK = 'https://calendar.google.com/calendar?cid=MXQ0NDRob24wdTE1cGkxOWlyYzUxaTgxb3NAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ';
+const CALENDAR_ID = '1t444hon0u15pi19irc51i81os@group.calendar.google.com';
 
+//todo move to prop file
+const ADDRESS = 'http://192.168.88.254:5000';
+const API = '/api/calendar';
 
 class App extends React.Component {
     constructor(props) {
@@ -35,7 +38,7 @@ class App extends React.Component {
 
     fetchEvents() {
         let url = new URL(ADDRESS + API);
-        let params = [['start', this.state.start.toISOString()]];
+        let params = [['calendarId', CALENDAR_ID], ['start', this.state.start.toISOString()]];
         url.search = new URLSearchParams(params).toString();
 
         fetch(url, {signal: this.abortController.signal})
