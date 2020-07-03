@@ -22,19 +22,18 @@ class App extends React.Component {
     abortController = new window.AbortController();
 
     componentDidMount() {
-        let url = new URL(ADDRESS + API);
-        let params = [['start', this.state.start.toISOString()]];
-        url.search = new URLSearchParams(params).toString();
-
-        //todo move to prop file
-        fetch(url)
-            .then(res => res.json())
-            .then(json => {
-                this.setState({events: json});
-            });
+        this.fetchEvents()
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.start !== prevState.start) {
+            this.fetchEvents()
+        }
+    }
+
+    componentWillUnmount = () => this.abortController.abort();
+
+    fetchEvents() {
         let url = new URL(ADDRESS + API);
         let params = [['start', this.state.start.toISOString()]];
         url.search = new URLSearchParams(params).toString();
@@ -45,12 +44,11 @@ class App extends React.Component {
                 this.setState({events: json});
             })
             .catch(error => {
-                if (error.name === 'AbortError') return;
-                throw error;
+                if (error.name === 'AbortError') {
+                    this.setState({events: []})
+                }
             });
     }
-
-    componentWillUnmount = () => this.abortController.abort();
 
     handleDate = (date) => {
         this.setState({start: date});
