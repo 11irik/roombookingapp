@@ -9,7 +9,7 @@ class CalendarApi {
         this.calendar = google.calendar({version: 'v3', auth});
     }
 
-    async listEvents(startDate = (new Date()).toISOString(), endDate = (new Date()).toISOString(), maxResults = MAX_EVENTS_COUNT) {
+    async listEvents(startDate = (new Date()).toISOString(), endDate = (new Date(startDate)).toISOString(), maxResults = MAX_EVENTS_COUNT) {
         let events;
 
         startDate = new Date(startDate);
