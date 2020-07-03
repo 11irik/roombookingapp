@@ -7,7 +7,7 @@ class EventList extends React.Component {
         return (
             <div>
                 <List>
-                    {this.props.events.map(x =>  <Event data={x}/>)}
+                    {this.props.events.map(x =>  <Event key = {x.id} data={x}/>)}
                 </List>
             </div>
         )

@@ -9,9 +9,10 @@ getAuthenticatedClient().then(auth => {
     calendarApi = new CalendarApi(auth = {auth});
 });
 
-router.post('/', async (req, res) => {
+router.get('/', (req, res) => {
     try {
-        calendarApi.listEvents(req.body.start, req.body.end, req.body.count).then(events => res.send(JSON.stringify(events)));
+        calendarApi.listEvents(req.query.start, req.query.end, req.query.count).then((events) => {res.json(events)
+        })
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Server error'});
