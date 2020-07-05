@@ -3,7 +3,6 @@ import EventList from "./EventList";
 import './App.css';
 import Grid from "@material-ui/core/Grid";
 import DatePicker from "./DatePicker";
-import CalendarLink from "./CalendarLink";
 import CalendarSelect from "./CalendarSelect";
 import CalendarStatus from "./CalendarStatus";
 
@@ -19,23 +18,24 @@ class App extends React.Component {
             calendars:
                 [],
             start: new Date(),
-            calendar: {}
+            calendar: {},
+            isFree: '',
         }
     }
 
     abortController = new window.AbortController();
 
     componentDidMount() {
-        this.fetchCalendars().then(() => this.fetchEvents());
+        this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (this.state.start !== prevState.start) {
-            this.fetchEvents()
+            this.fetchEvents().then(() => this.getRoomStatus());
         }
 
         if (this.state.calendar !== prevState.calendar) {
-            this.fetchEvents()
+            this.fetchEvents().then(() => this.getRoomStatus());
         }
     }
 
@@ -78,7 +78,7 @@ class App extends React.Component {
             });
     }
 
-    fetchEvents() {
+    async fetchEvents() {
         let url = new URL(ADDRESS + API + this.state.calendar.id);
         let params = [['start', this.state.start.toISOString()]];
         url.search = new URLSearchParams(params).toString();
@@ -98,7 +98,7 @@ class App extends React.Component {
         let defaultEventList = [];
         defaultEventList.push(noEvents);
 
-        fetch(url, {signal: this.abortController.signal})
+        await fetch(url, {signal: this.abortController.signal})
             .then(res => res.json())
             .then(events => {
                 if (events.length !== 0) {
@@ -116,6 +116,19 @@ class App extends React.Component {
                     this.setState({events: defaultEventList})
                 }
             });
+    }
+
+    getRoomStatus() {
+        let currentTime =  new Date();
+        let isFree = true;
+        this.state.events.map(x =>
+        {
+            if (new Date(x.start.dateTime) < currentTime && new Date(x.end.dateTime) > currentTime) {
+                isFree = false;
+            }
+        });
+
+        this.setState({status: isFree})
     }
 
     handleDate = (date) => {
@@ -140,7 +153,7 @@ class App extends React.Component {
                                 onSelectCalendar={this.handleCalendar}
                                 calendars={this.state.calendars}
                             />
-                            <CalendarStatus status={true} link={this.state.calendar.link}/>
+                            <CalendarStatus status={this.state.status} link={this.state.calendar.link}/>
                         </div>
                     </Grid>
                     <Grid item xs>
