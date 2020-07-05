@@ -5,6 +5,7 @@ import Grid from "@material-ui/core/Grid";
 import DatePicker from "./DatePicker";
 import CalendarLink from "./CalendarLink";
 import CalendarSelect from "./CalendarSelect";
+import CalendarStatus from "./CalendarStatus";
 
 //todo move to prop file
 const ADDRESS = 'http://192.168.88.254:5000/';
@@ -133,9 +134,14 @@ class App extends React.Component {
             }}>
                 <Grid container spacing={1}>
                     <Grid item xs>
-                        <CalendarSelect calendar={this.state.calendar} onSelectCalendar={this.handleCalendar}
-                                        calendars={this.state.calendars}/>
-                        <CalendarLink link={this.state.calendar.link} name={'Link'}/>
+                        <div class={'flexbox-container'}>
+                            <CalendarSelect
+                                calendar={this.state.calendar}
+                                onSelectCalendar={this.handleCalendar}
+                                calendars={this.state.calendars}
+                            />
+                            <CalendarStatus status={true} link={this.state.calendar.link}/>
+                        </div>
                     </Grid>
                     <Grid item xs>
                         <p>Events</p>
