@@ -10,6 +10,8 @@ import CalendarStatus from "./CalendarStatus";
 const ADDRESS = 'http://192.168.88.254:5000/';
 const API = 'api/calendar/';
 
+const Background = 'url(https://lh3.googleusercontent.com/GUOYVJC9WrBIzjwcZ9GLhr62YNyF-Y__C-XkfmWdes7SU3zidyA6cvRXKt10UlcEI4aGEuKlMmwUE0uWHJlFuSJWO8Nt85rZim54bRo=w0)'
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -119,10 +121,9 @@ class App extends React.Component {
     }
 
     getRoomStatus() {
-        let currentTime =  new Date();
+        let currentTime = new Date();
         let isFree = true;
-        this.state.events.map(x =>
-        {
+        this.state.events.map(x => {
             if (new Date(x.start.dateTime) < currentTime && new Date(x.end.dateTime) > currentTime) {
                 isFree = false;
             }
@@ -142,28 +143,25 @@ class App extends React.Component {
     render() {
         return (
             <div style={{
+                backgroundImage: Background,
                 padding: 20,
                 flexGrow: 1,
+                height:'100%',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'cover',
             }}>
                 <Grid container spacing={1}>
                     <Grid item xs>
-                        <div class={'flexbox-container'}>
-                            <CalendarSelect
-                                calendar={this.state.calendar}
-                                onSelectCalendar={this.handleCalendar}
-                                calendars={this.state.calendars}
-                            />
-                            <CalendarStatus status={this.state.status} link={this.state.calendar.link}/>
-                        </div>
-                    </Grid>
-                    <Grid item xs>
-                        <p>Events</p>
-                    </Grid>
-                </Grid>
-
-                <Grid container spacing={1}>
-                    <Grid item xs>
-                        <DatePicker date={this.state.start} onSelectDate={this.handleDate}/>
+                            <DatePicker date={this.state.start} onSelectDate={this.handleDate}/>
+                            <div class={'flexbox-container'}>
+                                <CalendarSelect
+                                    calendar={this.state.calendar}
+                                    onSelectCalendar={this.handleCalendar}
+                                    calendars={this.state.calendars}
+                                />
+                                <CalendarStatus status={this.state.status} link={this.state.calendar.link}/>
+                            </div>
                     </Grid>
                     <Grid item xs>
                         <EventList events={this.state.events}/>

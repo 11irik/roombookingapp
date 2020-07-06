@@ -16,7 +16,7 @@ class Event extends React.Component {
     }
 
     getTime(date) {
-        return date.getHours() + ':' + date.getMinutes()
+        return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2)
     }
 
     render() {
