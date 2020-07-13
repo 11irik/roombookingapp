@@ -1,8 +1,27 @@
 import React from "react";
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import AlarmIcon from '@material-ui/icons/Alarm';
+import { withStyles } from '@material-ui/styles';
+
+
+const styles = theme => ({
+    whiteBackgroundColor: {
+        backgroundColor: 'black',
+    },
+    grayBackgroundColor: {
+        backgroundColor: '#142584'
+    },
+    primary:{
+        fontSize:'450%',
+        textAlign: 'center',
+        color: 'white'
+    },
+    secondary:{
+        fontSize:'350%',
+        textAlign: 'center',
+        color: 'white'
+    }
+});
 
 class Event extends React.Component {
     constructor(props) {
@@ -20,15 +39,21 @@ class Event extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
+        let color;
+
+        if (this.props.colorChange) {
+            color = classes.grayBackgroundColor;
+        } else {
+            color = classes.whiteBackgroundColor;
+        }
+
         return (
-            <ListItem button component='a' target="_blank" href={this.props.data.htmlLink}>
-                <ListItemIcon>
-                    <AlarmIcon />
-                </ListItemIcon>
-                <ListItemText primary={this.state.summary} secondary={this.getTime(this.state.startDate) + "-" + this.getTime(this.state.endDate)}/>
+            <ListItem style={{backgroundColor: 'black'}} button component='a' target="_blank" href={this.props.data.htmlLink}>
+                <ListItemText className={color} classes={{primary:classes.primary, secondary:classes.secondary}} primary={this.state.summary} secondary={this.getTime(this.state.startDate) + "-" + this.getTime(this.state.endDate)}/>
             </ListItem>
         );
     }
 }
 
-export default Event;
+export default withStyles(styles)(Event);

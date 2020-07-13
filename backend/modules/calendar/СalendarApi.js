@@ -5,13 +5,13 @@ const calendars =
     [
         {
             id: '1t444hon0u15pi19irc51i81os@group.calendar.google.com',
-            name: 'Room1',
+            name: 'Человек 1',
             link: 'https://calendar.google.com/calendar?cid=MXQ0NDRob24wdTE1cGkxOWlyYzUxaTgxb3NAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ'
         },
 
         {
             id: 'fhhe3104bmbm3ugbs719p5ofpk@group.calendar.google.com',
-            name: 'Room2',
+            name: 'Человек 2',
             link: 'https://calendar.google.com/calendar?cid=ZmhoZTMxMDRibWJtM3VnYnM3MTlwNW9mcGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ'
         }
     ];

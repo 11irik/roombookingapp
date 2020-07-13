@@ -15,13 +15,20 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+
 export default function EventList(props) {
     const classes = useStyles();
 
     return (
         <Fragment>
-            <List className={classes.listColor}>
-                {props.events.map(x => <Event key={x.id} data={x}/>)}
+            <List className={classes.listColor} style={{backgroundColor: 'black'}}>
+                {props.events.map(function (x, i) {
+                    let colorChange;
+                    colorChange = !!(i % 2);
+                    return (
+                        <Event key={x.id} data={x} colorChange = {colorChange}/>
+                    )
+                })}
             </List>
         </Fragment>
     )

@@ -5,8 +5,7 @@ body, html, container {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  height: 100%;
-  overflow: hidden;
+  background-color: black;
 }
 
 code {

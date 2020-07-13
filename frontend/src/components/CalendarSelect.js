@@ -18,9 +18,10 @@ export default function SimpleSelect(props) {
     const classes = useStyles();
 
     return (
-        <div>
-            <FormControl className={classes.formControl}>
+        <div >
+            <FormControl className={classes.formControl} >
                 <Select
+                    style={{color: 'white'}}
                     value={props.calendar}
                     onChange={e => props.onSelectCalendar(e.target.value)}
                 >
