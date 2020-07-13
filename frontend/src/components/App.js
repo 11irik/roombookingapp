@@ -7,8 +7,8 @@ import CalendarSelect from "./CalendarSelect";
 import CalendarStatus from "./CalendarStatus";
 
 //todo move to prop file
-const ADDRESS = 'http://5.165.197.32:5000/';
-// const ADDRESS = 'http://localhost:5000/';
+// const ADDRESS = 'http://5.165.197.32:5000/';
+const ADDRESS = 'http://localhost:5000/';
 const API = 'api/calendar/';
 
 const Background = 'url(https://lh3.googleusercontent.com/GUOYVJC9WrBIzjwcZ9GLhr62YNyF-Y__C-XkfmWdes7SU3zidyA6cvRXKt10UlcEI4aGEuKlMmwUE0uWHJlFuSJWO8Nt85rZim54bRo=w0)'
@@ -158,7 +158,10 @@ class App extends React.Component {
                     <EventList events={this.state.events}/>
                 </Grid>
 
-                <div className={'flexbox-container'}>
+                <div className={'flexbox-container'} style={{
+                    position: 'fixed',
+                    bottom: '20px'
+                }}>
                     <CalendarSelect
                         calendar={this.state.calendar}
                         onSelectCalendar={this.handleCalendar}
