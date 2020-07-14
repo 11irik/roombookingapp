@@ -10,7 +10,7 @@ import DateFnsUtils from "@date-io/date-fns";
 ReactDOM.render(
     <React.StrictMode>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <App style={{backgroundColor: 'black'}}/>
+            <App />
         </MuiPickersUtilsProvider>
     </React.StrictMode>,
     document.getElementById('root')

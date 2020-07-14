@@ -7,8 +7,15 @@ import CalendarSelect from "./CalendarSelect";
 import CalendarStatus from "./CalendarStatus";
 
 
-const HOST = process.env.REACT_APP_HOST;
-const API = process.env.REACT_APP_CALENDAR_API;
+// const HOST = process.env.REACT_APP_HOST;
+// const API = process.env.REACT_APP_CALENDAR_API;
+
+// const HOST = 'http://localhost:5000/';
+const HOST = 'http://5.165.197.32:5000/';
+
+const API_CALENDAR = 'api/calendar/';
+const API_EVENT = 'api/event/';
+
 
 class App extends React.Component {
     constructor(props) {
@@ -27,9 +34,8 @@ class App extends React.Component {
 
     componentDidMount() {
         this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
-
-        console.log(HOST)
-        console.log(API)
+        //todo timer
+        this.interval = setInterval(() => this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus())), 10000);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -42,10 +48,13 @@ class App extends React.Component {
         }
     }
 
-    componentWillUnmount = () => this.abortController.abort();
+    componentWillUnmount() {
+        clearInterval(this.interval);
+        this.abortController.abort();
+    }
 
     async fetchCalendars() {
-        let url = HOST + API;
+        let url = HOST + API_CALENDAR;
 
         let noData = {
             link: 'nodata',
@@ -82,43 +91,44 @@ class App extends React.Component {
     }
 
     async fetchEvents() {
-        let url = new URL(HOST + API + this.state.calendar.id);
+        let url = new URL(HOST + API_CALENDAR + this.state.calendar.id);
         let params = [['start', this.state.start.toISOString()]];
         url.search = new URLSearchParams(params).toString();
 
-        let noEvents = {
-            id: '1',
-            htmlLink: 'noEvent',
-            summary: 'No events',
-            start: {
-                dateTime: '1970-01-01T00:00:00+04:00'
-            },
-            end: {
-                dateTime: '1970-01-01T00:00:00+04:00'
-            },
-        };
-
-        let defaultEventList = [];
-        defaultEventList.push(noEvents);
 
         await fetch(url, {signal: this.abortController.signal})
             .then(res => res.json())
             .then(events => {
-                if (events.length !== 0) {
-                    this.setState({
-                        events: events,
-                    })
-                } else {
-                    this.setState({
-                        events: defaultEventList,
-                    });
-                }
+                events.sort((a, b) => a.end.dateTime > b.end.dateTime ? 1 : -1);
+                this.setState({
+                    events: events,
+                })
             })
             .catch(error => {
                 if (error.name === 'AbortError') {
-                    this.setState({events: defaultEventList})
+                    //todo
                 }
             });
+    }
+
+    async updateEvent(event) {
+        let url = new URL(HOST + API_EVENT);
+        fetch(url, {
+            method: 'PUT',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
     }
 
     getRoomStatus() {
@@ -141,21 +151,67 @@ class App extends React.Component {
         this.setState({calendar: calendar});
     };
 
-    render() {
-        return (
-            <div style={{
-                // backgroundImage: Background,
-                padding: 20,
-                flexGrow: 1,
-                height: '100%',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'cover',
-                backgroundColor: 'black',
-            }}>
+    handleFinish = (calendarId, eventId, startDate) => {
+        let now = new Date();
 
-                <Grid item xs style={{backgroundColor: 'black'}}>
-                    <EventList events={this.state.events}/>
+        startDate = new Date(startDate);
+
+        if (startDate > now) {
+            startDate = now;
+        }
+
+        let event = {
+            "calendarId": calendarId,
+            "eventId": eventId,
+            "resource": {
+                "start": {
+                    "dateTime": startDate
+                },
+                "end": {
+                    'dateTime': now
+                }
+            }
+        };
+
+        this.updateEvent(event).then(x => {
+            let eventIndex = this.state.events.findIndex(x => x.id === eventId);
+            let changedEvents = this.state.events.concat();
+            changedEvents.splice(eventIndex, 1);
+            this.setState({events: changedEvents})
+        });
+    };
+
+    handleExtend = (calendarId, eventId, endDate) => {
+        endDate = new Date(endDate);
+        endDate.setDate(endDate.getDate() + 1);
+
+        let event = {
+            "calendarId": calendarId,
+            "eventId": eventId,
+            "resource": {
+                "end": {
+                    'dateTime': endDate
+                }
+            }
+        };
+
+        this.updateEvent(event).then(x => {
+            let changedEvents = this.state.events.concat();
+            changedEvents.map(x => x.id === eventId ? x.end.dateTime = endDate : {});
+            this.setState({events: changedEvents})
+        });
+    };
+
+
+
+    render() {
+        let eventListComponent;
+        eventListComponent =
+            <EventList date={this.state.start} events={this.state.events} handleExtend={this.handleExtend} handleFinish={this.handleFinish}/>
+        return (
+            <div>
+                <Grid>
+                    {eventListComponent}
                 </Grid>
 
                 <div className={'flexbox-container'} style={{

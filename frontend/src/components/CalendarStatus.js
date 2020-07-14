@@ -16,10 +16,10 @@ const useStyles = makeStyles((theme) => ({
 export default function CalendarStatus(props) {
     const classes = useStyles();
 
-    const busyLabel = 'Busy';
+    const busyLabel = 'Занят';
     const busyColor = 'secondary';
 
-    const freeLabel = 'Free';
+    const freeLabel = 'Свободен';
     const freeColor = 'primary';
 
     let label = busyLabel;

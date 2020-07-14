@@ -2,14 +2,33 @@ import React from "react";
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { withStyles } from '@material-ui/styles';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import IconButton from '@material-ui/core/IconButton';
+import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import Divider from '@material-ui/core/Divider';
 
+import CheckIcon from '@material-ui/icons/Check';
 
 const styles = theme => ({
-    whiteBackgroundColor: {
+    firstButton: {
         backgroundColor: 'black',
+        '&:hover': {
+            backgroundColor: 'gray',
+        },
+        color: 'white'
     },
-    grayBackgroundColor: {
-        backgroundColor: '#142584'
+    secondButton: {
+        backgroundColor: '#142584',
+        '&:hover': {
+            backgroundColor: 'gray',
+        },
+        color: 'white'
+    },
+    iconButton: {
+        '&:hover': {
+            backgroundColor: 'gray',
+        },
+        color: 'white'
     },
     primary:{
         fontSize:'450%',
@@ -20,22 +39,32 @@ const styles = theme => ({
         fontSize:'350%',
         textAlign: 'center',
         color: 'white'
-    }
+    },
 });
+
+const MONTH_LIST = [ "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря" ];
+const DAY_LIST = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+
 
 class Event extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            summary: props.data.summary,
-            startDate: new Date(props.data.start.dateTime),
-            endDate: new Date(props.data.end.dateTime),
-        }
     }
 
-    getTime(date) {
-        return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2)
+    getMonth(date) {
+        return (MONTH_LIST[date.getMonth()]);
+    }
+
+    getDate(date) {
+        return (date.getDate());
+    }
+
+    getDay(date) {
+        return (DAY_LIST[date.getDay()]);
+    }
+
+    getDayString(date) {
+        return this.getDate(date) + ' ' + this.getMonth(date) + ', ' + this.getDay(date);
     }
 
     render() {
@@ -43,14 +72,24 @@ class Event extends React.Component {
         let color;
 
         if (this.props.colorChange) {
-            color = classes.grayBackgroundColor;
+            color = classes.secondButton;
         } else {
-            color = classes.whiteBackgroundColor;
+            color = classes.firstButton;
         }
 
         return (
-            <ListItem style={{backgroundColor: 'black'}} button component='a' target="_blank" href={this.props.data.htmlLink}>
-                <ListItemText className={color} classes={{primary:classes.primary, secondary:classes.secondary}} primary={this.state.summary} secondary={this.getTime(this.state.startDate) + "-" + this.getTime(this.state.endDate)}/>
+            <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.data.htmlLink} >
+                <ListItemText classes={{primary:classes.primary, secondary:classes.secondary}} primary={this.props.data.summary} secondary={this.getDayString(new Date(this.props.data.end.dateTime))}/>
+                <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onExtend(this.props.data.organizer.email, this.props.data.id, this.props.data.end.dateTime)}>
+                        <AccessTimeIcon />
+                    </IconButton>
+                    <Divider/>
+                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onFinish(this.props.data.organizer.email, this.props.data.id, this.props.data.start.dateTime)}>
+                        <CheckIcon />
+                    </IconButton>
+                </ListItemSecondaryAction>
+
             </ListItem>
         );
     }

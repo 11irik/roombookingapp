@@ -18,9 +18,8 @@ class CalendarApi {
         startDate = new Date(startDate);
         endDate = new Date(endDate);
 
-        startDate.setHours(0, 0, 0, 0);   //set min and max bound to get all events in chosen dates
         endDate.setHours(23, 59, 59, 99);
-        
+
         await this.calendar.events.list({
             calendarId: calendarId,
             timeMin: startDate,
@@ -38,6 +37,24 @@ class CalendarApi {
 
     listCalendars() {
         return CALENDARS;
+    }
+
+    async updateEvent(calendarId, eventId, resource) {
+        let x = "error";
+
+        let calendarObject =
+            {
+                'calendarId': calendarId,
+                'eventId': eventId,
+                'resource': resource
+            };
+
+        await this.calendar.events.patch(calendarObject).then(
+            res => x = res,
+            err => console.log(err),
+        );
+
+        return x;
     }
 }
 
