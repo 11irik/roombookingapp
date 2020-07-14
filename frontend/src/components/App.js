@@ -6,12 +6,9 @@ import DatePicker from "./DatePicker";
 import CalendarSelect from "./CalendarSelect";
 import CalendarStatus from "./CalendarStatus";
 
-//todo move to prop file
-// const ADDRESS = 'http://5.165.197.32:5000/';
-const ADDRESS = 'http://localhost:5000/';
-const API = 'api/calendar/';
 
-const Background = 'url(https://lh3.googleusercontent.com/GUOYVJC9WrBIzjwcZ9GLhr62YNyF-Y__C-XkfmWdes7SU3zidyA6cvRXKt10UlcEI4aGEuKlMmwUE0uWHJlFuSJWO8Nt85rZim54bRo=w0)'
+const HOST = process.env.REACT_APP_HOST;
+const API = process.env.REACT_APP_CALENDAR_API;
 
 class App extends React.Component {
     constructor(props) {
@@ -30,6 +27,9 @@ class App extends React.Component {
 
     componentDidMount() {
         this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
+
+        console.log(HOST)
+        console.log(API)
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -45,7 +45,7 @@ class App extends React.Component {
     componentWillUnmount = () => this.abortController.abort();
 
     async fetchCalendars() {
-        let url = ADDRESS + API;
+        let url = HOST + API;
 
         let noData = {
             link: 'nodata',
@@ -82,7 +82,7 @@ class App extends React.Component {
     }
 
     async fetchEvents() {
-        let url = new URL(ADDRESS + API + this.state.calendar.id);
+        let url = new URL(HOST + API + this.state.calendar.id);
         let params = [['start', this.state.start.toISOString()]];
         url.search = new URLSearchParams(params).toString();
 
