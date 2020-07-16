@@ -11,7 +11,7 @@ export default class EventList extends React.Component {
         let eventComponents;
         if (this.props.events.length > 0) {
             eventComponents = this.props.events.map((x, i) =>
-                <Event key={x.id} data={x} onFinish={this.props.handleFinish} onExtend={this.props.handleExtend} colorChange={!!(i % 2)}/>
+                <Event key={x.id} event={x} onFinish={this.props.handleFinish} onExtend={this.props.handleExtend} onGenerateEventId={this.props.handleGenerateEventId} colorChange={!!(i % 2)}/>
             )
         } else {
             let data = {
@@ -29,7 +29,7 @@ export default class EventList extends React.Component {
                     },
             };
 
-            eventComponents = <Event key={0} data={data} onFinish={() => {
+            eventComponents = <Event key={0} event={data} onFinish={() => {
             }} colorChange={!!(0 % 2)}/>;
         }
         return (

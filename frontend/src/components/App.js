@@ -7,14 +7,13 @@ import CalendarSelect from "./CalendarSelect";
 import CalendarStatus from "./CalendarStatus";
 
 
-// const HOST = process.env.REACT_APP_HOST;
-// const API = process.env.REACT_APP_CALENDAR_API;
+const HOST = process.env.REACT_APP_HOST;
+const API_CALENDAR = process.env.REACT_APP_CALENDAR_API;
+const API_EVENT = process.env.REACT_APP_EVENT_API;
 
-// const HOST = 'http://localhost:5000/';
-const HOST = 'http://5.165.197.32:5000/';
+//todo
+const API_EVENT_GENERATE_ID = 'api/event/generateId/';
 
-const API_CALENDAR = 'api/calendar/';
-const API_EVENT = 'api/event/';
 
 
 class App extends React.Component {
@@ -35,7 +34,8 @@ class App extends React.Component {
     componentDidMount() {
         this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
         //todo timer
-        this.interval = setInterval(() => this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus())), 10000);
+        //FIXME REMOVE COMMENT
+        // this.interval = setInterval(() => this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus())), 10000);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -131,6 +131,29 @@ class App extends React.Component {
             )
     }
 
+    async createEventId(event) {
+        let url = new URL(HOST + API_EVENT_GENERATE_ID);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                //todo
+                res => {},
+                err => {},
+            )
+    }
+
+
+
     getRoomStatus() {
         let currentTime = new Date();
         let isFree = true;
@@ -202,12 +225,18 @@ class App extends React.Component {
         });
     };
 
+    handleGenerateEventId = (event) => {
 
+
+        this.createEventId(event).then(x => {
+
+        });
+    };
 
     render() {
         let eventListComponent;
         eventListComponent =
-            <EventList date={this.state.start} events={this.state.events} handleExtend={this.handleExtend} handleFinish={this.handleFinish}/>
+            <EventList date={this.state.start} events={this.state.events} handleExtend={this.handleExtend} handleFinish={this.handleFinish} handleGenerateEventId={this.handleGenerateEventId}/>
         return (
             <div>
                 <Grid>

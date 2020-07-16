@@ -78,14 +78,14 @@ class Event extends React.Component {
         }
 
         return (
-            <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.data.htmlLink} >
-                <ListItemText classes={{primary:classes.primary, secondary:classes.secondary}} primary={this.props.data.summary} secondary={this.getDayString(new Date(this.props.data.end.dateTime))}/>
+            <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.event.htmlLink} onClick={() => this.props.onGenerateEventId(this.props.event)}>
+                <ListItemText classes={{primary:classes.primary, secondary:classes.secondary}} primary={this.props.event.summary} secondary={this.getDayString(new Date(this.props.event.end.dateTime))}/>
                 <ListItemSecondaryAction>
-                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onExtend(this.props.data.organizer.email, this.props.data.id, this.props.data.end.dateTime)}>
+                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onExtend(this.props.event.organizer.email, this.props.event.id, this.props.event.end.dateTime)}>
                         <AccessTimeIcon />
                     </IconButton>
                     <Divider/>
-                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onFinish(this.props.data.organizer.email, this.props.data.id, this.props.data.start.dateTime)}>
+                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onFinish(this.props.event.organizer.email, this.props.event.id, this.props.event.start.dateTime)}>
                         <CheckIcon />
                     </IconButton>
                 </ListItemSecondaryAction>
