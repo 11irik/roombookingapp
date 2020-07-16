@@ -174,13 +174,14 @@ class App extends React.Component {
     };
 
     handleFinish = (calendarId, eventId, startDate) => {
-        let now = new Date();
+        let firstJanuary = new Date();
+        firstJanuary.setDate(1);
+        firstJanuary.setMonth(0);
 
-        startDate = new Date(startDate);
+        console.log(firstJanuary)
 
-        if (startDate > now) {
-            startDate = now;
-        }
+        startDate = new Date(firstJanuary);
+        console.log(startDate)
 
         let event = {
             "calendarId": calendarId,
@@ -190,7 +191,7 @@ class App extends React.Component {
                     "dateTime": startDate
                 },
                 "end": {
-                    'dateTime': now
+                    'dateTime': firstJanuary
                 }
             }
         };
