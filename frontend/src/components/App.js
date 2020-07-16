@@ -34,15 +34,12 @@ class App extends React.Component {
     componentDidMount() {
         this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
         //todo timer, check its length and also count and place of requests
-        this.interval = setInterval(() => this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus())), 15000);
+        this.interval = setInterval( () => this.fetchEvents().then(() => this.getRoomStatus()), 15000);
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.state.start !== prevState.start) {
-            this.fetchEvents().then(() => this.getRoomStatus());
-        }
 
-        if (this.state.calendar !== prevState.calendar) {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.start !== prevState.start || this.state.calendar !== prevState.calendar) {
             this.fetchEvents().then(() => this.getRoomStatus());
         }
     }
