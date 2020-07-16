@@ -33,9 +33,8 @@ class App extends React.Component {
 
     componentDidMount() {
         this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
-        //todo timer
-        //FIXME REMOVE COMMENT
-        // this.interval = setInterval(() => this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus())), 10000);
+        //todo timer, check its length and also count and place of requests
+        this.interval = setInterval(() => this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus())), 15000);
     }
 
     componentDidUpdate(prevProps, prevState) {

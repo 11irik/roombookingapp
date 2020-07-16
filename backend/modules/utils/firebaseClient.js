@@ -27,6 +27,15 @@ function getEvent(id) {
     });
 }
 
+//todo probably kostil (remove async and fst return)
+async function doesEventExist(eventId) {
+    return db.collection(collectionName)
+        .where('eventId', '==', eventId).get()
+        .then(doc => {
+            return doc.size
+        });
+}
+
 async function writeEvent(event) {
     let id = makeid(idLength);
     let document = await db.collection(collectionName).doc(id);
@@ -51,5 +60,6 @@ async function writeEvent(event) {
 
 module.exports = {
     getEvent,
+    doesEventExist,
     writeEvent
 };

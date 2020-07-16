@@ -13,7 +13,7 @@ router.get('/:calendarId', (req, res) => {
     try {
         calendarApi.listEvents(req.params.calendarId, req.query.start, req.query.end, req.query.count).then((events) => {
             res.json(events);
-            console.log(events)
+            console.log('getting events from google api')
         })
     } catch (e) {
         console.log(e);

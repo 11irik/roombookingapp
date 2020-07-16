@@ -24,32 +24,34 @@ router.put('/', (req, res) => {
 //fixme add check for event existence in db
 const fireBaseClient = require('../modules/utils/firebaseClient');
 router.post('/generateId', (req, res) => {
-    try {
-        let event = {
-            'calendarId': req.body.organizer.email,
-            'eventId': req.body.id,
-            'summary': req.body.summary
-        };
 
-        fireBaseClient.writeEvent(event).then(id => {
-            let resource = {
-                "location": id
-            };
+    fireBaseClient.doesEventExist(req.body.id).then(exists => {
+        if (!exists) {
+            try {
+                let event = {
+                    'calendarId': req.body.organizer.email,
+                    'eventId': req.body.id,
+                    'summary': req.body.summary
+                };
 
-            calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource) //todo
-        });
+                fireBaseClient.writeEvent(event).then(id => {
+                    let resource = {
+                        "location": id
+                    };
 
-
-
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: 'Server error'});
-    }
+                    calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource) //todo
+                });
+            } catch (e) {
+                console.log(e);
+                res.status(500).json({message: 'Server error'});
+            }
+        }
+    });
 });
 
-router.get('/a', (req, res) => {
+router.get('/test', (req, res) => {
     try {
-        fireBaseClient.getEvent();
+        fireBaseClient.doesEventExist('5ebpm0ropaoh2hka07qnnmh8r8');
         res.json('done')
     } catch (e) {
         console.log(e);
