@@ -12,8 +12,9 @@ getAuthenticatedClient().then(auth => {
 router.get('/:calendarId', (req, res) => {
     try {
         calendarApi.listEvents(req.params.calendarId, req.query.start, req.query.end, req.query.count).then((events) => {
+            console.log(events.length);
             res.json(events);
-            console.log('getting events from google api')
+            // console.log('getting events from google api') fixme
         })
     } catch (e) {
         console.log(e);

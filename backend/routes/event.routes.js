@@ -2,6 +2,7 @@ const {Router} = require('express');
 const router = Router();
 const getAuthenticatedClient = require('../modules/utils/authentication');
 const CalendarApi = require('../modules/calendar/СalendarApi');
+const fireBaseClient = require('../modules/utils/firebaseClient');
 
 let calendarApi;
 
@@ -21,8 +22,6 @@ router.put('/', (req, res) => {
 });
 
 
-//fixme add check for event existence in db
-const fireBaseClient = require('../modules/utils/firebaseClient');
 router.post('/generateId', (req, res) => {
 
     fireBaseClient.doesEventExist(req.body.id).then(exists => {

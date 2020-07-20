@@ -40,6 +40,11 @@ const styles = theme => ({
         textAlign: 'center',
         color: 'white'
     },
+    expiredPrimary:{
+        fontSize:'450%',
+        textAlign: 'center',
+        color: 'red'
+    }
 });
 
 const MONTH_LIST = [ "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря" ];
@@ -67,6 +72,7 @@ class Event extends React.Component {
         return this.getDate(date) + ' ' + this.getMonth(date) + ', ' + this.getDay(date);
     }
 
+    //fixme DO NOT REDIRECT AND GENERATE ID FOR NOEVENT
     render() {
         const { classes } = this.props;
         let color;
@@ -77,9 +83,16 @@ class Event extends React.Component {
             color = classes.firstButton;
         }
 
+        let font;
+        if (new Date(this.props.event.end.dateTime) < new Date()) {
+            font = classes.expiredPrimary
+        } else {
+            font = classes.primary
+        }
+
         return (
             <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.event.htmlLink} onClick={() => this.props.onGenerateEventId(this.props.event)}>
-                <ListItemText classes={{primary:classes.primary, secondary:classes.secondary}} primary={this.props.event.summary} secondary={this.getDayString(new Date(this.props.event.end.dateTime))}/>
+                <ListItemText classes={{primary:font, secondary:classes.secondary}} primary={this.props.event.summary} secondary={this.getDayString(new Date(this.props.event.end.dateTime))}/>
                 <ListItemSecondaryAction>
                     <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onExtend(this.props.event.organizer.email, this.props.event.id, this.props.event.end.dateTime)}>
                         <AccessTimeIcon />

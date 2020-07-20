@@ -13,34 +13,44 @@ const API_EVENT = process.env.REACT_APP_EVENT_API;
 
 //todo
 const API_EVENT_GENERATE_ID = 'api/event/generateId/';
-
-
+const WEEK_LENGTH = 7;
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             events: [],
+            expiredEvents: [],
             calendars:
                 [],
             start: new Date(),
+            today: new Date(),
             calendar: {},
             isFree: '',
+            allEvents: []
         }
     }
 
     abortController = new window.AbortController();
 
     componentDidMount() {
-        this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
-        //todo timer, check its length and also count and place of requests
-        this.interval = setInterval( () => this.fetchEvents().then(() => this.getRoomStatus()), 15000);
-    }
+        this.fetchCalendars()
+            .then(() => {
+                this.fetchAllEvents()
+            })
+        ;
 
+        //todo timer, check its length and also count and place of requests
+        this.interval = setInterval(() => {
+            this.setState({'today': new Date()});
+            this.fetchAllEvents()
+
+        }, 15000);
+    }
 
     componentDidUpdate(prevProps, prevState) {
         if (this.state.start !== prevState.start || this.state.calendar !== prevState.calendar) {
-            this.fetchEvents().then(() => this.getRoomStatus());
+            this.fetchAllEvents()
         }
     }
 
@@ -86,11 +96,33 @@ class App extends React.Component {
             });
     }
 
-    async fetchEvents() {
-        let url = new URL(HOST + API_CALENDAR + this.state.calendar.id);
-        let params = [['start', this.state.start.toISOString()]];
-        url.search = new URLSearchParams(params).toString();
 
+    //fixme
+    async fetchAllEvents() {
+        //todo check if current day is between 1 and 7
+        let dayEnd = new Date(this.state.start);
+        dayEnd = new Date(dayEnd.setHours(23, 59, 59, 99));
+        let weekAgoDate = new Date(this.state.today);
+        weekAgoDate.setDate(this.state.today.getDate() - WEEK_LENGTH);
+
+        this.fetchEvents(this.state.start, dayEnd)
+            .then(() => {
+                this.getRoomStatus();
+                this.setState({
+                    allEvents: this.state.expiredEvents.concat(this.state.events),
+                })
+            });
+        this.fetchExpiredEvents(weekAgoDate, this.state.today).then(() => {
+            this.setState({
+                allEvents: this.state.expiredEvents.concat(this.state.events),
+            })
+        })
+    }
+
+    async fetchEvents(start, end) {
+        let url = new URL(HOST + API_CALENDAR + this.state.calendar.id);
+        let params = [['start', start], ['end', end]];
+        url.search = new URLSearchParams(params).toString();
 
         await fetch(url, {signal: this.abortController.signal})
             .then(res => res.json())
@@ -106,6 +138,29 @@ class App extends React.Component {
                 }
             });
     }
+
+    //todo
+    async fetchExpiredEvents(start, end) {
+        let url = new URL(HOST + API_CALENDAR + this.state.calendar.id);
+        let params = [['start', start], ['end', end]];
+        url.search = new URLSearchParams(params).toString();
+
+        await fetch(url, {signal: this.abortController.signal})
+            .then(res => res.json())
+            .then(events => {
+                events = events.filter(event => (new Date(event.end.dateTime) < new Date(this.state.today)));
+                events.sort((a, b) => a.end.dateTime > b.end.dateTime ? 1 : -1);
+                this.setState({
+                    expiredEvents: events
+                })
+            })
+            .catch(error => {
+                if (error.name === 'AbortError') {
+                    //todo
+                }
+            });
+    }
+
 
     async updateEvent(event) {
         let url = new URL(HOST + API_EVENT);
@@ -143,11 +198,12 @@ class App extends React.Component {
         })
             .then(
                 //todo
-                res => {},
-                err => {},
+                res => {
+                },
+                err => {
+                },
             )
     }
-
 
 
     getRoomStatus() {
@@ -175,10 +231,7 @@ class App extends React.Component {
         firstJanuary.setDate(1);
         firstJanuary.setMonth(0);
 
-        console.log(firstJanuary)
-
         startDate = new Date(firstJanuary);
-        console.log(startDate)
 
         let event = {
             "calendarId": calendarId,
@@ -194,10 +247,10 @@ class App extends React.Component {
         };
 
         this.updateEvent(event).then(x => {
-            let eventIndex = this.state.events.findIndex(x => x.id === eventId);
-            let changedEvents = this.state.events.concat();
+            let eventIndex = this.state.allEvents.findIndex(x => x.id === eventId);
+            let changedEvents = this.state.allEvents.concat();
             changedEvents.splice(eventIndex, 1);
-            this.setState({events: changedEvents})
+            this.setState({allEvents: changedEvents})
         });
     };
 
@@ -216,15 +269,13 @@ class App extends React.Component {
         };
 
         this.updateEvent(event).then(x => {
-            let changedEvents = this.state.events.concat();
+            let changedEvents = this.state.allEvents.concat();
             changedEvents.map(x => x.id === eventId ? x.end.dateTime = endDate : {});
-            this.setState({events: changedEvents})
+            this.setState({allEvents: changedEvents})
         });
     };
 
     handleGenerateEventId = (event) => {
-
-
         this.createEventId(event).then(x => {
 
         });
@@ -233,7 +284,10 @@ class App extends React.Component {
     render() {
         let eventListComponent;
         eventListComponent =
-            <EventList date={this.state.start} events={this.state.events} handleExtend={this.handleExtend} handleFinish={this.handleFinish} handleGenerateEventId={this.handleGenerateEventId}/>
+            <EventList date={this.state.start} events={this.state.allEvents} handleExtend={this.handleExtend}
+                       handleFinish={this.handleFinish} handleGenerateEventId={this.handleGenerateEventId}/>;
+
+
         return (
             <div>
                 <Grid>
@@ -251,7 +305,6 @@ class App extends React.Component {
                     />
 
                     <DatePicker date={this.state.start} onSelectDate={this.handleDate}/>
-
 
                     <CalendarStatus status={this.state.status} link={this.state.calendar.link}/>
                 </div>

@@ -18,8 +18,6 @@ class CalendarApi {
         startDate = new Date(startDate);
         endDate = new Date(endDate);
 
-        endDate.setHours(23, 59, 59, 99);
-
         await this.calendar.events.list({
             calendarId: calendarId,
             timeMin: startDate,

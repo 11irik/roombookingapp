@@ -58,8 +58,28 @@ async function writeEvent(event) {
         // });
 }
 
+//todo
+async function finishEvent(id) {
+
+    let document = await db.collection(collectionName).doc(id);
+
+    return document.get()
+        .then(doc => {
+            if (doc.exists) {
+                document.update({finished: true})
+            } else {
+                console.log('There is no such document: ' + id);
+                return id;
+            }
+        });
+    // .catch(function (error) {
+    //     console.log("Error getting document:", error);
+    // });
+}
+
 module.exports = {
     getEvent,
     doesEventExist,
-    writeEvent
+    writeEvent,
+    finishEvent
 };
