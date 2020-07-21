@@ -10,9 +10,8 @@ import CalendarStatus from "./CalendarStatus";
 const HOST = process.env.REACT_APP_HOST;
 const API_CALENDAR = process.env.REACT_APP_CALENDAR_API;
 const API_EVENT = process.env.REACT_APP_EVENT_API;
-
-//todo
-const API_EVENT_GENERATE_ID = 'api/event/generateId/';
+const API_EVENT_GENERATE_ID = process.env.REACT_APP_EVENT_GENERATE_ID;
+const API_EVENT_FINISH = process.env.REACT_APP_EVENT_FINISH;
 const WEEK_LENGTH = 7;
 
 class App extends React.Component {
@@ -97,13 +96,13 @@ class App extends React.Component {
     }
 
 
-    //fixme
+    //todo
     async fetchWeekEvents() {
-        //todo check if current day is between 1 and 7
         let dayEnd = new Date(this.state.start);
         dayEnd = new Date(dayEnd.setHours(23, 59, 59, 99));
         let weekAgoDate = new Date(this.state.today);
         weekAgoDate.setDate(this.state.today.getDate() - WEEK_LENGTH);
+        console.log(weekAgoDate);
 
         this.fetchEvents(weekAgoDate, dayEnd)
             .then(() => {
@@ -182,6 +181,28 @@ class App extends React.Component {
             )
     }
 
+    async finishEvent(event) {
+        let url = new URL(HOST + API_EVENT_FINISH);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
+    }
+
+
+
     async createEventId(event) {
         let url = new URL(HOST + API_EVENT_GENERATE_ID);
         fetch(url, {
@@ -226,51 +247,36 @@ class App extends React.Component {
         this.setState({calendar: calendar});
     };
 
-    handleFinish = (calendarId, eventId, startDate) => {
+    handleFinish = (event) => {
         let firstJanuary = new Date();
         firstJanuary.setDate(1);
         firstJanuary.setMonth(0);
 
-        startDate = new Date(firstJanuary);
+        firstJanuary = new Date(firstJanuary);
 
-        let event = {
-            "calendarId": calendarId,
-            "eventId": eventId,
-            "resource": {
-                "start": {
-                    "dateTime": startDate
-                },
-                "end": {
-                    'dateTime': firstJanuary
-                }
-            }
-        };
+        event.start.dateTime = firstJanuary;
+        event.end.dateTime = firstJanuary;
 
-        this.updateEvent(event).then(x => {
-            let eventIndex = this.state.allEvents.findIndex(x => x.id === eventId);
+        this.finishEvent(event).then(x => {
+            let eventIndex = this.state.allEvents.findIndex(x => x.id === event.id);
             let changedEvents = this.state.allEvents.concat();
             changedEvents.splice(eventIndex, 1);
             this.setState({allEvents: changedEvents})
         });
+
+
     };
 
-    handleExtend = (calendarId, eventId, endDate) => {
-        endDate = new Date(endDate);
+    handleExtend = (event) => {
+        let endDate = new Date(event.end.dateTime);
         endDate.setDate(endDate.getDate() + 1);
 
-        let event = {
-            "calendarId": calendarId,
-            "eventId": eventId,
-            "resource": {
-                "end": {
-                    'dateTime': endDate
-                }
-            }
-        };
+        event.end.dateTime = endDate;
+
 
         this.updateEvent(event).then(x => {
             let changedEvents = this.state.allEvents.concat();
-            changedEvents.map(x => x.id === eventId ? x.end.dateTime = endDate : {});
+            changedEvents.map(x => x.id === event.id ? x.end.dateTime = endDate : {});
             this.setState({allEvents: changedEvents})
         });
     };

@@ -12,7 +12,29 @@ getAuthenticatedClient().then(auth => {
 
 router.put('/', (req, res) => {
     try {
-        calendarApi.updateEvent(req.body.calendarId, req.body.eventId, req.body.resource).then((status) => {
+        let resource = {
+            'start': req.body.start,
+            'end': req.body.end
+        };
+        calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource).then((status) => {
+
+            res.json(status);
+        })
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message: 'Server error'});
+    }
+});
+
+router.post('/finish', (req, res) => {
+    try {
+        let resource = {
+            'start': req.body.start,
+            'end': req.body.end
+        };
+        calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource).then((status) => {
+
+            fireBaseClient.finishEvent(req.body.location);//todo
             res.json(status);
         })
     } catch (e) {
