@@ -36,21 +36,21 @@ class App extends React.Component {
     componentDidMount() {
         this.fetchCalendars()
             .then(() => {
-                this.fetchAllEvents()
+                this.fetchWeekEvents()
             })
         ;
 
         //todo timer, check its length and also count and place of requests
         this.interval = setInterval(() => {
             this.setState({'today': new Date()});
-            this.fetchAllEvents()
+            this.fetchWeekEvents()
 
         }, 15000);
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (this.state.start !== prevState.start || this.state.calendar !== prevState.calendar) {
-            this.fetchAllEvents()
+            this.fetchWeekEvents()
         }
     }
 
@@ -98,25 +98,25 @@ class App extends React.Component {
 
 
     //fixme
-    async fetchAllEvents() {
+    async fetchWeekEvents() {
         //todo check if current day is between 1 and 7
         let dayEnd = new Date(this.state.start);
         dayEnd = new Date(dayEnd.setHours(23, 59, 59, 99));
         let weekAgoDate = new Date(this.state.today);
         weekAgoDate.setDate(this.state.today.getDate() - WEEK_LENGTH);
 
-        this.fetchEvents(this.state.start, dayEnd)
+        this.fetchEvents(weekAgoDate, dayEnd)
             .then(() => {
                 this.getRoomStatus();
                 this.setState({
-                    allEvents: this.state.expiredEvents.concat(this.state.events),
+                    allEvents: this.state.events.concat(),
                 })
             });
-        this.fetchExpiredEvents(weekAgoDate, this.state.today).then(() => {
-            this.setState({
-                allEvents: this.state.expiredEvents.concat(this.state.events),
-            })
-        })
+        // this.fetchExpiredEvents(weekAgoDate, this.state.today).then(() => {
+        //     this.setState({
+        //         allEvents: this.state.expiredEvents.concat(this.state.events),
+        //     })
+        // })
     }
 
     async fetchEvents(start, end) {
@@ -272,12 +272,6 @@ class App extends React.Component {
             let changedEvents = this.state.allEvents.concat();
             changedEvents.map(x => x.id === eventId ? x.end.dateTime = endDate : {});
             this.setState({allEvents: changedEvents})
-        });
-    };
-
-    handleGenerateEventId = (event) => {
-        this.createEventId(event).then(x => {
-
         });
     };
 

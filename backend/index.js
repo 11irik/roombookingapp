@@ -21,6 +21,23 @@ app.get('/*', function (req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
+// let requestLoop = setInterval(function(){
+//     // request({
+//     //     url: "http://www.google.com",
+//     //     method: "GET",
+//     //     timeout: 10000,
+//     //     followRedirect: true,
+//     //     maxRedirects: 10
+//     // },function(error, response, body){
+//     //     if(!error && response.statusCode == 200){
+//     //         console.log('sucess!');
+//     //     }else{
+//     //         console.log('error' + response.statusCode);
+//     //     }
+//     // });
+//     console.log('zhopa')
+// }, 1000);
+
 app.listen(5000, () => {
     console.log('server started on port 5000');
 });

@@ -91,7 +91,7 @@ class Event extends React.Component {
         }
 
         return (
-            <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.event.htmlLink} onClick={() => this.props.onGenerateEventId(this.props.event)}>
+            <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.event.htmlLink}>
                 <ListItemText classes={{primary:font, secondary:classes.secondary}} primary={this.props.event.summary} secondary={this.getDayString(new Date(this.props.event.end.dateTime))}/>
                 <ListItemSecondaryAction>
                     <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onExtend(this.props.event.organizer.email, this.props.event.id, this.props.event.end.dateTime)}>
