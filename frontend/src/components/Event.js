@@ -11,6 +11,7 @@ import GavelIcon from '@material-ui/icons/Gavel';
 import Rotate90DegreesCcwIcon from '@material-ui/icons/Rotate90DegreesCcw';
 
 import CheckIcon from '@material-ui/icons/Check';
+import PrintIcon from '@material-ui/icons/Print';
 
 const styles = theme => ({
     firstButton: {
@@ -54,7 +55,12 @@ const MONTH_LIST = [ "Января", "Февраля", "Марта", "Апрел
 const DAY_LIST = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
 
+//FIXME
+const HOST = process.env.REACT_APP_HOST;
+const API_PRINT = process.env.REACT_APP_PRINT_API;
+
 class Event extends React.Component {
+
     constructor(props) {
         super(props);
     }
@@ -73,6 +79,26 @@ class Event extends React.Component {
 
     getDayString(date) {
         return this.getDate(date) + ' ' + this.getMonth(date) + ', ' + this.getDay(date);
+    }
+
+    printRequest(event) {
+        let url = new URL(HOST + API_PRINT);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
     }
 
     //fixme DO NOT REDIRECT AND GENERATE ID FOR NOEVENT
@@ -117,6 +143,10 @@ class Event extends React.Component {
                     <Divider/>
                     <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onStatus(this.props.event)}>
                         {StatusIcon}
+                    </IconButton>
+                    <Divider/>
+                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.printRequest(this.props.event)}>
+                        <PrintIcon />
                     </IconButton>
                 </ListItemSecondaryAction>
 

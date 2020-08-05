@@ -4,7 +4,9 @@ const fireBaseClient = require('./modules/utils/firebaseClient');
 const getAuthenticatedClient = require('./modules/utils/authentication');
 let calendarApi;
 
+
 const CalendarApi = require('./modules/calendar/СalendarApi');
+
 
 getAuthenticatedClient().then(auth => {
     calendarApi = new CalendarApi(auth = {auth});
@@ -19,6 +21,7 @@ app.use(cors());
 
 app.use('/api/calendar', require('./routes/calendar.routes'));
 app.use('/api/event', require('./routes/event.routes'));
+app.use('/api/print', require('./routes/print.routes'));
 
 
 const path = require('path');
@@ -55,7 +58,7 @@ app.listen(5000, () => {
 
 
 //TODO TOO MUCH RESPONSIBILITY
-function generateId(event) {
+async function generateId(event) {
     fireBaseClient.doesEventExist(event.id).then(exists => {
         if (!exists) {
             const defaultStatus = "queue"
@@ -97,6 +100,7 @@ function setTime(event) {
         let end = new Date(event.end.date)
 
         start.setHours(8, 0)
+        end.setDate(end.getDate() - 1)
         end.setHours(20, 0)
 
         let resource = {
@@ -118,5 +122,7 @@ function setTime(event) {
         console.log(e);
         res.status(500).json({message: 'Server error'});
     }
-
 }
+
+
+

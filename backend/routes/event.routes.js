@@ -4,6 +4,7 @@ const getAuthenticatedClient = require('../modules/utils/authentication');
 const CalendarApi = require('../modules/calendar/СalendarApi');
 const fireBaseClient = require('../modules/utils/firebaseClient');
 
+
 let calendarApi;
 
 getAuthenticatedClient().then(auth => {
@@ -33,8 +34,13 @@ router.post('/finish', (req, res) => {
             'end': req.body.end
         };
 
+        let data = req.body.location.split(' ')
+
+        let id = data[0]
+        let status = "done"
+
         calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource).then((status) => {
-            fireBaseClient.finishEvent(req.body.location.split[0]);//todo also location now keep id and status(queue/progress)
+            fireBaseClient.finishEvent(id);//todo also location now keep id and status(queue/progress)
             res.json(status);
         })
     } catch (e) {

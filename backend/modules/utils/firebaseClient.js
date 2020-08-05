@@ -1,6 +1,11 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('../../firebaseKey.json');
 const makeid = require('./stringGenerator');
+const Printer = require('./Printer')
+const fs = require('fs')
+const DateParser = require('./DateParser')
+const Template = require('./Template')
+
 
 
 admin.initializeApp({
@@ -49,33 +54,42 @@ async function writeEvent(event) {
             } else {
                 document.set(event)
                     .then(() => {
+
+                        let obj = {
+                            id: id,
+                            date: DateParser.getDayString(new Date(event.end)),
+                            description: event.description
+                        }
+
+                        fs.readFile('./check.txt', 'utf8', function(err, contents) {
+                            let text = Template.ApplyTemplate(contents, obj)
+                            Printer.print(text)
+                        });
+
                         console.log('Short id generated: ' + id);
                     });
                 return id;
             }
         });
-        // .catch(function (error) {
-        //     console.log("Error getting document:", error);
-        // });
 }
 
 //todo
 async function finishEvent(id) {
-
     let document = await db.collection(collectionName).doc(id);
 
     return document.get()
         .then(doc => {
             if (doc.exists) {
-                document.update({status: true, finalEnd: new Date().toISOString()})
+                console.log(document)
+                document.update({status: "done", finalEnd: new Date().toISOString()})
             } else {
                 console.log('There is no such document: ' + id);
                 return id;
             }
-        });
-    // .catch(function (error) {
-    //     console.log("Error getting document:", error);
-    // });
+        })
+    .catch(function (error) {
+        console.log("Error getting document:", error);
+    });
 }
 
 async function statusEvent(id) {
