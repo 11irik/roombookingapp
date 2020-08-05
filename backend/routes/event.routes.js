@@ -32,11 +32,40 @@ router.post('/finish', (req, res) => {
             'start': req.body.start,
             'end': req.body.end
         };
-        calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource).then((status) => {
 
-            fireBaseClient.finishEvent(req.body.location);//todo
+        calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource).then((status) => {
+            fireBaseClient.finishEvent(req.body.location.split[0]);//todo also location now keep id and status(queue/progress)
             res.json(status);
         })
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message: 'Server error'});
+    }
+});
+
+//todo
+router.post('/status', (req, res) => {
+    try {
+        let data = req.body.location.split(' ')
+
+        let id = data[0]
+        let status = data[1]
+
+        if (status === "progress") {
+            status = "queue"
+        } else {
+            status = "progress"
+        }
+
+        let resource = {
+            'location': id + " " + status,
+        };
+
+        calendarApi.updateEvent(req.body.organizer.email, req.body.id, resource).then((status) => {
+            res.json(status);
+        })
+        fireBaseClient.statusEvent(id);//todo also location now keep id and status(queue/progress)
+
     } catch (e) {
         console.log(e);
         res.status(500).json({message: 'Server error'});

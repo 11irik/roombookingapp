@@ -78,6 +78,29 @@ async function finishEvent(id) {
     // });
 }
 
+async function statusEvent(id) {
+    let document = await db.collection(collectionName).doc(id);
+
+    return document.get()
+        .then(doc => {
+            if (doc.exists) {
+                let status;
+                if (doc.data().status === "queue") {
+                    status = "progress"
+                } else {
+                    status = "queue"
+                }
+                document.update({status: status})
+            } else {
+                console.log('There is no such document: ' + id);
+                return id;
+            }
+        });
+    // .catch(function (error) {
+    //     console.log("Error getting document:", error);
+    // });
+}
+
 async function generateId(event) {
     this.doesEventExist(event.id).then(exists => {
         if (!exists) {
@@ -107,5 +130,6 @@ module.exports = {
     getEvent,
     doesEventExist,
     writeEvent,
-    finishEvent
+    finishEvent,
+    statusEvent
 };

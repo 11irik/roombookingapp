@@ -7,6 +7,9 @@ import IconButton from '@material-ui/core/IconButton';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import Divider from '@material-ui/core/Divider';
 
+import GavelIcon from '@material-ui/icons/Gavel';
+import Rotate90DegreesCcwIcon from '@material-ui/icons/Rotate90DegreesCcw';
+
 import CheckIcon from '@material-ui/icons/Check';
 
 const styles = theme => ({
@@ -90,6 +93,16 @@ class Event extends React.Component {
             font = classes.primary
         }
 
+        let StatusIcon
+        if (this.props.event.location) {
+            if (this.props.event.location.split(' ')[1] === 'queue') {
+                StatusIcon = <GavelIcon/>
+            } else {
+                StatusIcon = <Rotate90DegreesCcwIcon/>
+            }
+        }
+
+
         return (
             <ListItem classes={{button: color}} button component='a' target="_blank" href={this.props.event.htmlLink}>
                 <ListItemText classes={{primary:font, secondary:classes.secondary}} primary={this.props.event.summary} secondary={this.getDayString(new Date(this.props.event.end.dateTime))}/>
@@ -100,6 +113,10 @@ class Event extends React.Component {
                     <Divider/>
                     <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onFinish(this.props.event)}>
                         <CheckIcon />
+                    </IconButton>
+                    <Divider/>
+                    <IconButton edge="end" aria-label="delete" className={classes.iconButton} onClick={() => this.props.onStatus(this.props.event)}>
+                        {StatusIcon}
                     </IconButton>
                 </ListItemSecondaryAction>
 

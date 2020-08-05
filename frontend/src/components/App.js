@@ -12,6 +12,7 @@ const API_CALENDAR = process.env.REACT_APP_CALENDAR_API;
 const API_EVENT = process.env.REACT_APP_EVENT_API;
 const API_EVENT_GENERATE_ID = process.env.REACT_APP_EVENT_GENERATE_ID;
 const API_EVENT_FINISH = process.env.REACT_APP_EVENT_FINISH;
+const API_EVENT_STATUS = process.env.REACT_APP_EVENT_STATUS;
 const WEEK_LENGTH = 7;
 
 class App extends React.Component {
@@ -202,6 +203,26 @@ class App extends React.Component {
     }
 
 
+    async statusEvent(event) {
+        let url = new URL(HOST + API_EVENT_STATUS);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
+    }
+
 
     async createEventId(event) {
         let url = new URL(HOST + API_EVENT_GENERATE_ID);
@@ -263,8 +284,24 @@ class App extends React.Component {
             changedEvents.splice(eventIndex, 1);
             this.setState({allEvents: changedEvents})
         });
+    };
 
+    handleStatus = (event) => {
+        let data = event.location.split(" ")
 
+        let status
+        if (data[1] === 'queue') {
+            status = 'progress'
+        } else {
+            status = 'queue'
+        }
+
+        let location = data[0] + ' ' + status
+        this.statusEvent(event).then(x => {
+            let changedEvents = this.state.allEvents.concat();
+            changedEvents.map(x => x.id === event.id ? x.location = location : {});
+            this.setState({allEvents: changedEvents})
+        }) //FIXME
     };
 
     handleExtend = (event) => {
@@ -284,8 +321,11 @@ class App extends React.Component {
     render() {
         let eventListComponent;
         eventListComponent =
-            <EventList date={this.state.start} events={this.state.allEvents} handleExtend={this.handleExtend}
-                       handleFinish={this.handleFinish} handleGenerateEventId={this.handleGenerateEventId}/>;
+            <EventList date={this.state.start} events={this.state.allEvents}
+                       handleExtend={this.handleExtend}
+                       handleFinish={this.handleFinish}
+                       handleStatus={this.handleStatus}
+            />;
 
 
         return (

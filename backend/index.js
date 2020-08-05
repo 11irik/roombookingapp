@@ -53,21 +53,31 @@ app.listen(5000, () => {
     console.log('server started on port 5000');
 });
 
+
+//TODO TOO MUCH RESPONSIBILITY
 function generateId(event) {
     fireBaseClient.doesEventExist(event.id).then(exists => {
         if (!exists) {
+            const defaultStatus = "queue"
+
             try {
+                if (!event.start.dateTime) {
+                    setTime(event)
+                }
+
                 let eventDb = {
                     'calendarId': event.organizer.email,
                     'eventId': event.id,
                     'summary': event.summary,
                     'end': event.end.dateTime,
-                    'status': false,
+                    'status': defaultStatus,
                 };
 
                 fireBaseClient.writeEvent(eventDb).then(id => {
                     let resource = {
-                        "location": id
+                        'location': id + " " + defaultStatus,
+                        'start': event.start,
+                        'end': event.end
                     };
 
                     calendarApi.updateEvent(event.organizer.email, event.id, resource) //todo
@@ -80,3 +90,33 @@ function generateId(event) {
 
 }
 
+//todo add params
+function setTime(event) {
+    try {
+        let start = new Date(event.start.date)
+        let end = new Date(event.end.date)
+
+        start.setHours(8, 0)
+        end.setHours(20, 0)
+
+        let resource = {
+            'start': {
+                dateTime: start,
+                date: null
+            },
+            'end': {
+                dateTime: end,
+                date: null
+            }
+        };
+
+        event.start = resource.start
+        event.end = resource.end
+
+        return event
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message: 'Server error'});
+    }
+
+}
