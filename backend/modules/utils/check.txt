@@ -1,3 +1,0 @@
-hello world
-Limas customs
-id zakaza: {{id}}

@@ -1,7 +1,8 @@
 var { exec } = require("child_process");
 const fs = require('fs')
+const path = require('path');
 
-let fontpath = (__dirname+ '/DejaVuSans.ttf');
+let fontpath = path.join(__dirname, '..', '..', 'font.ttf')
 const PDFDocument = require('pdfkit');
 
 function print(text) {
@@ -12,19 +13,21 @@ function print(text) {
             margin: 5
         }
     );
-    console.log('ПЕЧАТЬ')
     //todo
-    pdf.pipe(fs.createWriteStream('./output.pdf'));
+    pdf.pipe(fs.createWriteStream('output.pdf'));
     pdf
         .font(fontpath)
         .fontSize(10)
         .text(text);
 
     pdf.end();
-    p()
+    //fixme add async
+    setTimeout(p, 2000)
 }
 
-function p() {
+function p(st) {
+    console.log('ПЕЧАТЬ')
+
     let fun = `lp output.pdf`
 
     exec(fun, function (error, stdout, stderr) {

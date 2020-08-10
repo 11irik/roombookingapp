@@ -56,7 +56,6 @@ app.listen(5000, () => {
     console.log('server started on port 5000');
 });
 
-
 //TODO TOO MUCH RESPONSIBILITY
 async function generateId(event) {
     fireBaseClient.doesEventExist(event.id).then(exists => {
@@ -74,6 +73,7 @@ async function generateId(event) {
                     'summary': event.summary,
                     'end': event.end.dateTime,
                     'status': defaultStatus,
+                    'description': event.description
                 };
 
                 fireBaseClient.writeEvent(eventDb).then(id => {

@@ -8,7 +8,7 @@ function ApplyTemplate(template, properties) {
 
     for (var i = 1; i < templateFragments.length; i++) {
         var fragmentSections = templateFragments[i].split("}}", 2);
-        returnValue += properties[fragmentSections[0]];
+        returnValue += properties[fragmentSections[0]] ? properties[fragmentSections[0]] : '';
         returnValue += fragmentSections[1];
     }
 
