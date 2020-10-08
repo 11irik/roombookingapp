@@ -90,7 +90,6 @@ async function generateId(event) {
             }
         }
     });
-
 }
 
 //todo add params
@@ -123,6 +122,3 @@ function setTime(event) {
         res.status(500).json({message: 'Server error'});
     }
 }
-
-
-

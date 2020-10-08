@@ -1,7 +1,7 @@
 const {google} = require('googleapis');
 const fs = require('fs');
 
-const CALENDARS_PATH = 'calendars.json';
+const CALENDARS_PATH = './properties/calendars.json';
 
 const CALENDARS = JSON.parse(fs.readFileSync(CALENDARS_PATH));
 

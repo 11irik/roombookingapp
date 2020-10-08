@@ -2,5 +2,6 @@ node_modules
 build
 /.idea/
 /backend/credentials.json
-/backend/token.json
+/backend/properties/token.json
 /backend/firebaseKey.json
+/backend/properties/firebaseKey.json

@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('../../firebaseKey.json');
+const serviceAccount = require('../../properties/firebaseKey.json');
 const makeid = require('./stringGenerator');
 const Printer = require('./Printer')
 const fs = require('fs')

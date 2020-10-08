@@ -4,13 +4,13 @@ const util = require('util');
 const readline = require('readline');
 const readFile = util.promisify(fs.readFile);
 
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = './properties/token.json';
 
 async function getAuthenticatedClient()
 {
     let authClient;
 
-    await getData('credentials.json').then(data => {
+    await getData('./properties/credentials.json').then(data => {
         authClient = new GoogleAuthClient(JSON.parse(data));
     });
 

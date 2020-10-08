@@ -2,7 +2,7 @@ var { exec } = require("child_process");
 const fs = require('fs')
 const path = require('path');
 
-let fontpath = path.join(__dirname, '..', '..', 'font.ttf')
+let fontpath = "./properties/font.ttf"
 const PDFDocument = require('pdfkit');
 
 function print(text) {
@@ -14,7 +14,7 @@ function print(text) {
         }
     );
     //todo
-    pdf.pipe(fs.createWriteStream('output.pdf'));
+    pdf.pipe(fs.createWriteStream('/temp/output.pdf'));
     pdf
         .font(fontpath)
         .fontSize(10)
