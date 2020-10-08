@@ -6,45 +6,61 @@ import DatePicker from "./DatePicker";
 import CalendarSelect from "./CalendarSelect";
 import CalendarStatus from "./CalendarStatus";
 
-//todo move to prop file
-const ADDRESS = 'http://192.168.88.254:5000/';
-const API = 'api/calendar/';
 
-const Background = 'url(https://lh3.googleusercontent.com/GUOYVJC9WrBIzjwcZ9GLhr62YNyF-Y__C-XkfmWdes7SU3zidyA6cvRXKt10UlcEI4aGEuKlMmwUE0uWHJlFuSJWO8Nt85rZim54bRo=w0)'
+const HOST = process.env.REACT_APP_HOST;
+const API_CALENDAR = process.env.REACT_APP_CALENDAR_API;
+const API_EVENT = process.env.REACT_APP_EVENT_API;
+const API_EVENT_GENERATE_ID = process.env.REACT_APP_EVENT_GENERATE_ID;
+const API_EVENT_FINISH = process.env.REACT_APP_EVENT_FINISH;
+const API_EVENT_STATUS = process.env.REACT_APP_EVENT_STATUS;
+const WEEK_LENGTH = 7;
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             events: [],
+            expiredEvents: [],
             calendars:
                 [],
             start: new Date(),
+            today: new Date(),
             calendar: {},
             isFree: '',
+            allEvents: []
         }
     }
 
     abortController = new window.AbortController();
 
     componentDidMount() {
-        this.fetchCalendars().then(() => this.fetchEvents().then(() => this.getRoomStatus()));
+        this.fetchCalendars()
+            .then(() => {
+                this.fetchWeekEvents()
+            })
+        ;
+
+        //todo timer, check its length and also count and place of requests
+        this.interval = setInterval(() => {
+            this.setState({'today': new Date()});
+            this.fetchWeekEvents()
+
+        }, 15000);
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.state.start !== prevState.start) {
-            this.fetchEvents().then(() => this.getRoomStatus());
-        }
-
-        if (this.state.calendar !== prevState.calendar) {
-            this.fetchEvents().then(() => this.getRoomStatus());
+        if (this.state.start !== prevState.start || this.state.calendar !== prevState.calendar) {
+            this.fetchWeekEvents()
         }
     }
 
-    componentWillUnmount = () => this.abortController.abort();
+    componentWillUnmount() {
+        clearInterval(this.interval);
+        this.abortController.abort();
+    }
 
     async fetchCalendars() {
-        let url = ADDRESS + API;
+        let url = HOST + API_CALENDAR;
 
         let noData = {
             link: 'nodata',
@@ -80,45 +96,157 @@ class App extends React.Component {
             });
     }
 
-    async fetchEvents() {
-        let url = new URL(ADDRESS + API + this.state.calendar.id);
-        let params = [['start', this.state.start.toISOString()]];
+
+    //todo
+    async fetchWeekEvents() {
+        let dayEnd = new Date(this.state.start);
+        dayEnd = new Date(dayEnd.setHours(23, 59, 59, 99));
+        let weekAgoDate = new Date(this.state.today);
+        weekAgoDate.setDate(this.state.today.getDate() - WEEK_LENGTH);
+        console.log(weekAgoDate);
+
+        this.fetchEvents(weekAgoDate, dayEnd)
+            .then(() => {
+                this.getRoomStatus();
+                this.setState({
+                    allEvents: this.state.events.concat(),
+                })
+            });
+        // this.fetchExpiredEvents(weekAgoDate, this.state.today).then(() => {
+        //     this.setState({
+        //         allEvents: this.state.expiredEvents.concat(this.state.events),
+        //     })
+        // })
+    }
+
+    async fetchEvents(start, end) {
+        let url = new URL(HOST + API_CALENDAR + this.state.calendar.id);
+        let params = [['start', start], ['end', end]];
         url.search = new URLSearchParams(params).toString();
-
-        let noEvents = {
-            id: '1',
-            htmlLink: 'noEvent',
-            summary: 'No events',
-            start: {
-                dateTime: '1970-01-01T00:00:00+04:00'
-            },
-            end: {
-                dateTime: '1970-01-01T00:00:00+04:00'
-            },
-        };
-
-        let defaultEventList = [];
-        defaultEventList.push(noEvents);
 
         await fetch(url, {signal: this.abortController.signal})
             .then(res => res.json())
             .then(events => {
-                if (events.length !== 0) {
-                    this.setState({
-                        events: events,
-                    })
-                } else {
-                    this.setState({
-                        events: defaultEventList,
-                    });
-                }
+                events.sort((a, b) => a.end.dateTime > b.end.dateTime ? 1 : -1);
+                this.setState({
+                    events: events,
+                })
             })
             .catch(error => {
                 if (error.name === 'AbortError') {
-                    this.setState({events: defaultEventList})
+                    //todo
                 }
             });
     }
+
+    //todo
+    async fetchExpiredEvents(start, end) {
+        let url = new URL(HOST + API_CALENDAR + this.state.calendar.id);
+        let params = [['start', start], ['end', end]];
+        url.search = new URLSearchParams(params).toString();
+
+        await fetch(url, {signal: this.abortController.signal})
+            .then(res => res.json())
+            .then(events => {
+                events = events.filter(event => (new Date(event.end.dateTime) < new Date(this.state.today)));
+                events.sort((a, b) => a.end.dateTime > b.end.dateTime ? 1 : -1);
+                this.setState({
+                    expiredEvents: events
+                })
+            })
+            .catch(error => {
+                if (error.name === 'AbortError') {
+                    //todo
+                }
+            });
+    }
+
+
+    async updateEvent(event) {
+        let url = new URL(HOST + API_EVENT);
+        fetch(url, {
+            method: 'PUT',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
+    }
+
+    async finishEvent(event) {
+        let url = new URL(HOST + API_EVENT_FINISH);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
+    }
+
+
+    async statusEvent(event) {
+        let url = new URL(HOST + API_EVENT_STATUS);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                res => console.log(res),
+                err => console.log(err),
+            )
+    }
+
+
+    async createEventId(event) {
+        let url = new URL(HOST + API_EVENT_GENERATE_ID);
+        fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(event)
+        })
+            .then(
+                //todo
+                res => {
+                },
+                err => {
+                },
+            )
+    }
+
 
     getRoomStatus() {
         let currentTime = new Date();
@@ -140,33 +268,87 @@ class App extends React.Component {
         this.setState({calendar: calendar});
     };
 
+    handleFinish = (event) => {
+        let firstJanuary = new Date();
+        firstJanuary.setDate(1);
+        firstJanuary.setMonth(0);
+
+        firstJanuary = new Date(firstJanuary);
+
+        event.start.dateTime = firstJanuary;
+        event.end.dateTime = firstJanuary;
+
+        this.finishEvent(event).then(x => {
+            let eventIndex = this.state.allEvents.findIndex(x => x.id === event.id);
+            let changedEvents = this.state.allEvents.concat();
+            changedEvents.splice(eventIndex, 1);
+            this.setState({allEvents: changedEvents})
+        });
+    };
+
+    handleStatus = (event) => {
+        let data = event.location.split(" ")
+
+        let status
+        if (data[1] === 'queue') {
+            status = 'progress'
+        } else {
+            status = 'queue'
+        }
+
+        let location = data[0] + ' ' + status
+        this.statusEvent(event).then(x => {
+            let changedEvents = this.state.allEvents.concat();
+            changedEvents.map(x => x.id === event.id ? x.location = location : {});
+            this.setState({allEvents: changedEvents})
+        }) //FIXME
+    };
+
+    handleExtend = (event) => {
+        let endDate = new Date(event.end.dateTime);
+        endDate.setDate(endDate.getDate() + 1);
+
+        event.end.dateTime = endDate;
+
+
+        this.updateEvent(event).then(x => {
+            let changedEvents = this.state.allEvents.concat();
+            changedEvents.map(x => x.id === event.id ? x.end.dateTime = endDate : {});
+            this.setState({allEvents: changedEvents})
+        });
+    };
+
     render() {
+        let eventListComponent;
+        eventListComponent =
+            <EventList date={this.state.start} events={this.state.allEvents}
+                       handleExtend={this.handleExtend}
+                       handleFinish={this.handleFinish}
+                       handleStatus={this.handleStatus}
+            />;
+
+
         return (
-            <div style={{
-                backgroundImage: Background,
-                padding: 20,
-                flexGrow: 1,
-                height:'100%',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'cover',
-            }}>
-                <Grid container spacing={1}>
-                    <Grid item xs>
-                            <DatePicker date={this.state.start} onSelectDate={this.handleDate}/>
-                            <div class={'flexbox-container'}>
-                                <CalendarSelect
-                                    calendar={this.state.calendar}
-                                    onSelectCalendar={this.handleCalendar}
-                                    calendars={this.state.calendars}
-                                />
-                                <CalendarStatus status={this.state.status} link={this.state.calendar.link}/>
-                            </div>
-                    </Grid>
-                    <Grid item xs>
-                        <EventList events={this.state.events}/>
-                    </Grid>
+            <div>
+                <Grid>
+                    {eventListComponent}
                 </Grid>
+
+                <div className={'flexbox-container'} style={{
+                    position: 'fixed',
+                    bottom: '20px'
+                }}>
+                    <CalendarSelect
+                        calendar={this.state.calendar}
+                        onSelectCalendar={this.handleCalendar}
+                        calendars={this.state.calendars}
+                    />
+
+                    <DatePicker date={this.state.start} onSelectDate={this.handleDate}/>
+
+                    <CalendarStatus status={this.state.status} link={this.state.calendar.link}/>
+                </div>
+
             </div>
         )
     }

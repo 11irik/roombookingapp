@@ -1,22 +1,11 @@
 const {google} = require('googleapis');
+const fs = require('fs');
 
-//todo move to prop file
-const calendars =
-    [
-        {
-            id: '1t444hon0u15pi19irc51i81os@group.calendar.google.com',
-            name: 'Room1',
-            link: 'https://calendar.google.com/calendar?cid=MXQ0NDRob24wdTE1cGkxOWlyYzUxaTgxb3NAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ'
-        },
+const CALENDARS_PATH = 'calendars.json';
 
-        {
-            id: 'fhhe3104bmbm3ugbs719p5ofpk@group.calendar.google.com',
-            name: 'Room2',
-            link: 'https://calendar.google.com/calendar?cid=ZmhoZTMxMDRibWJtM3VnYnM3MTlwNW9mcGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ'
-        }
-    ];
+const CALENDARS = JSON.parse(fs.readFileSync(CALENDARS_PATH));
 
-const MAX_EVENTS_COUNT = 10;
+const MAX_EVENTS_COUNT = 50;
 
 class CalendarApi {
     constructor(props) {
@@ -26,13 +15,9 @@ class CalendarApi {
 
     async listEvents(calendarId, startDate = (new Date()).toISOString(), endDate = (new Date(startDate)).toISOString(), maxResults = MAX_EVENTS_COUNT) {
         let events = [];
-
         startDate = new Date(startDate);
         endDate = new Date(endDate);
 
-        startDate.setHours(0, 0, 0, 0);   //set min and max bound to get all events in chosen dates
-        endDate.setHours(23, 59, 59, 99);
-        
         await this.calendar.events.list({
             calendarId: calendarId,
             timeMin: startDate,
@@ -49,7 +34,25 @@ class CalendarApi {
     }
 
     listCalendars() {
-        return calendars;
+        return CALENDARS;
+    }
+
+    async updateEvent(calendarId, eventId, resource) {
+        let x = "error";
+
+        let calendarObject =
+            {
+                'calendarId': calendarId,
+                'eventId': eventId,
+                'resource': resource
+            };
+
+        await this.calendar.events.patch(calendarObject).then(
+            res => x = res,
+            err => console.log(err),
+        );
+
+        return x;
     }
 }
 

@@ -1,28 +1,49 @@
 import React, {Fragment} from "react";
 import List from '@material-ui/core/List';
 import Event from "./Event";
-import {makeStyles, withStyles} from '@material-ui/core/styles'
 
+export default class EventList extends React.Component {
+    constructor(props) {
+        super(props);
+    }
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        '& > * + *': {
-            marginLeft: theme.spacing(2),
-        },
-    },
-    listColor: {
-        backgroundColor: 'white',
-    },
-}));
+    render() {
+        let eventComponents;
+        if (this.props.events.length > 0) {
+            eventComponents = this.props.events.map((x, i) =>
+                <Event key={x.id} event={x}
+                       onFinish={this.props.handleFinish}
+                       onExtend={this.props.handleExtend}
+                       onStatus={this.props.handleStatus}
+                       colorChange={!!(i % 2)}/>
+            )
+        } else {
+            let data = {
+                id: '1',
+                htmlLink: 'noEvent',
+                summary: 'Нет задач',
+                start: {
+                    dateTime: this.props.date
+                },
+                end: {
+                    dateTime: this.props.date
+                },
+                organizer: {
+                        email: 'noEmail'
+                    },
+            };
 
-export default function EventList(props) {
-    const classes = useStyles();
-
-    return (
-        <Fragment>
-            <List className={classes.listColor}>
-                {props.events.map(x => <Event key={x.id} data={x}/>)}
-            </List>
-        </Fragment>
-    )
+            eventComponents = <Event key={0} event={data} onFinish={() => {
+            }} colorChange={!!(0 % 2)}/>;
+        }
+        return (
+            <Fragment>
+                <List>
+                    {eventComponents}
+                </List>
+            </Fragment>
+        )
+    }
 }
+
+

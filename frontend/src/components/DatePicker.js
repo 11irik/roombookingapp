@@ -1,14 +1,27 @@
-import React, {Fragment} from "react";
-import {DatePicker} from "@material-ui/pickers";
+import React, { useState } from "react";
+import lightBlue from "@material-ui/core/colors/lightBlue";
+import { DatePicker } from "@material-ui/pickers";
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/styles";
+
+const materialTheme = createMuiTheme({
+    overrides: {
+        MuiInputBase: {
+            input: {
+                color: "white"
+            }
+        }
+    },
+});
 
 export default function BasicDatePicker(props) {
     return (
-        <Fragment>
+        <ThemeProvider theme={materialTheme}>
             <DatePicker
                 value={props.date}
                 onChange={props.onSelectDate}
-                animateYearScrolling
+                animateYearScrolling={false}
             />
-        </Fragment>
+        </ThemeProvider>
     );
 }
