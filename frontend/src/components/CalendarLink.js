@@ -17,7 +17,7 @@ export default function CalendarLink(props) {
     return (
         <Typography className={classes.root}>
             <Link href={props.link} target="_blank">
-                Calendar
+                {props.name}
             </Link>
         </Typography>
     );

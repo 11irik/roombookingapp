@@ -5,7 +5,6 @@ export default function BasicDatePicker(props) {
     return (
         <Fragment>
             <DatePicker
-                label="Date"
                 value={props.date}
                 onChange={props.onSelectDate}
                 animateYearScrolling
